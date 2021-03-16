@@ -55,4 +55,9 @@ params = (
     ('include', 'TRAFFIC'),
 )
 
-data100500 = requests.get('https://panel-api2.voluum.com/report', headers=headers, params=params)
+jsn_data = requests.get('https://panel-api2.voluum.com/report', headers=headers, params=params)
+#BigQuery requires newline delimiteed JSON:
+result = [json.dumps(record) for record in jsn_data['rows']]
+with open("sample.json", "w") as outfile:
+    for i in result:
+        outfile.write(i+'\n')
