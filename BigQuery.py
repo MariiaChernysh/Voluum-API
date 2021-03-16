@@ -1,6 +1,8 @@
 # Source code is taken from here: https://github.com/googleapis/python-bigquery/blob/master/samples/load_table_uri_json.py
+import os
 from google.cloud import bigquery
-
+#setup environmental variable with GOOGLE_APPLICATION_CREDENTIALS to get access from the local PC to your project
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="C:/Users/Masha/PycharmProjects/Credentials.json"
 client = bigquery.Client()
 #Set table_id to the ID of the table to create.
 table_id = "marchs-reports.March.LTD_Report"
