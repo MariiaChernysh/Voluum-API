@@ -18,7 +18,7 @@ job_config = bigquery.LoadJobConfig(
         ],
         source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
     )
-# set the pth to the data in GCS
+# set the path to the data in GCS
 uri = "gs://.../sample.json"
 load_job = client.load_table_from_uri(
     uri,
