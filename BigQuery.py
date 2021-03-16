@@ -17,7 +17,7 @@ job_config = bigquery.LoadJobConfig(
         ],
         source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
     )
-uri = "gsalpha_marchsample.json"
+uri = "gs://.../sample.json"
 load_job = client.load_table_from_uri(
     uri,
     table_id,
