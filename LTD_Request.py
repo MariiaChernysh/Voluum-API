@@ -1,8 +1,6 @@
 import os
 import json
 import requests
-#CONST; TODO: auto-dates
-
 import calendar
 import pandas as pd
 import datetime as dt
@@ -10,7 +8,6 @@ from datetime import timedelta
 from datetime import date
 import calendar
 from google.cloud import bigquery
-
 
 headers = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -25,11 +22,7 @@ print(response.text)
 
 # Save a token for further report requests
 ttt = json.loads(response.text)
-token=ttt.get('token')
-
-# To write a proper request use Chrome Developers tools. Load the report you need -> visit Network section in Chrome Developers tools -> choose the Name  "report? blah-blah-blah"
-#-> Copy -> Copy as cURL(bash). At this point you'll have the exact request for the report you have created on a dashboard. To convert it to Python request use Postman or 
-#https://curl.trillworks.com/ or any other suitable service
+token = ttt.get('token')
 
 start_date = '2019-01-01'
 end_date = '2021-03-16'
@@ -63,10 +56,10 @@ while not stop:
                     'cwauth-token': token,
                     'sec-ch-ua-mobile': '?0',
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36',
-                    # 'cwauth-panel-token': '80CxSnKulRSW1yigOOrkyH7ublIz02Sf',
+                    # 'cwauth-panel-token': 'some_token_id', works without this one
                     'content-type': 'application/json',
                     'accept': 'application/json',
-                    'clientid': '08148d1f-a3d6-4323-8f64-6080302fc87f',
+                    'clientid': 'your_client_id_number',
                     'origin': 'https://panel.voluum.com',
                     'sec-fetch-site': 'same-site',
                     'sec-fetch-mode': 'cors',
