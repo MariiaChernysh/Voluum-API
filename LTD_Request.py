@@ -63,10 +63,10 @@ while not stop:
                     'cwauth-token': token,
                     'sec-ch-ua-mobile': '?0',
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36',
-                    # 'cwauth-panel-token': '80CxSnKulRSW1yigOOrkyH7ublIz02Sf',
+                    # 'cwauth-panel-token': 'some_token_id', works without this one
                     'content-type': 'application/json',
                     'accept': 'application/json',
-                    'clientid': '08148d1f-a3d6-4323-8f64-6080302fc87f',
+                    'clientid': 'your_client_id_number',
                     'origin': 'https://panel.voluum.com',
                     'sec-fetch-site': 'same-site',
                     'sec-fetch-mode': 'cors',
