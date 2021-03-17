@@ -1,10 +1,16 @@
 import os
 import json
 import requests
-
 #CONST; TODO: auto-dates
-date='2021-03-14'
-date1='2021-03-15'
+
+import calendar
+import pandas as pd
+import datetime as dt
+from datetime import timedelta
+from datetime import date
+import calendar
+from google.cloud import bigquery
+
 
 headers = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -24,42 +30,141 @@ token=ttt.get('token')
 # To write a proper request use Chrome Developers tools. Load the report you need -> visit Network section in Chrome Developers tools -> choose the Name  "report? blah-blah-blah"
 #-> Copy -> Copy as cURL(bash). At this point you'll have the exact request for the report you have created on a dashboard. To convert it to Python request use Postman or 
 #https://curl.trillworks.com/ or any other suitable service
-headers = {
-    'authority': 'panel-api2.voluum.com',
-    'sec-ch-ua': '"Google Chrome";v="89", "Chromium";v="89", ";Not A Brand";v="99"',
-    'cwauth-token': token, # change to token variable
-    'sec-ch-ua-mobile': '?0',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
-    #'cwauth-panel-token': 'some_other_token_here', # it works just fine without this one
-    'content-type': 'application/json',
-    'accept': 'application/json',
-    'clientid': 'your_client_id_here',
-    'origin': 'https://panel.voluum.com',
-    'sec-fetch-site': 'same-site',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-dest': 'empty',
-    'referer': 'https://panel.voluum.com/',
-    'accept-language': 'uk-UA,uk;q=0.9,ru;q=0.8,en-US;q=0.7,en;q=0.6,es;q=0.5',
-}
 
-params = (
-    ('from', date + 'T00:00:00Z'),
-    ('to', date1 + 'T00:00:00Z'),
-    ('tz', 'Europe/London'),
-    ('conversionTimeMode', 'CONVERSION'),
-    ('currency', 'USD'),
-    ('sort', 'cost'),
-    ('direction', 'desc'),
-    ('column', ['countryName', 'visits', 'visits', 'clicks', 'clicks', 'customConversions1', 'customConversions2', 'revenue', 'cost']),
-    ('groupBy', 'country-code'),
-    ('offset', '0'),
-    ('limit', '100'),
-    ('include', 'ACTIVE'),
-)
+start_date = '2019-01-01'
+end_date = '2021-03-16'
 
-jsn_data = requests.get('https://panel-api2.voluum.com/report', headers=headers, params=params)
-#BigQuery requires newline delimiteed JSON:
-result = [json.dumps(record) for record in jsn_data['rows']]
+date_i = pd.to_datetime(start_date)
+# start_month = start_date.month
+# start_year = start_date.year
+
+date_i = pd.to_datetime(start_date)
+
+cal_iter = calendar.Calendar()
+
+iter_year = date_i.year
+iter_month = date_i.month
+
+stop = False
+
+total_result = []
+
+while not stop:
+
+    cal_iter = calendar.Calendar().itermonthdates(iter_year, iter_month)
+    print('\nSending request for: ' + str(iter_year) + ' - ' + str(iter_month))
+
+    for cal_date in cal_iter:
+        if cal_date.month == iter_month:
+            if cal_date == date.today() - timedelta(days=1):
+                headers = {
+                    'authority': 'panel-api2.voluum.com',
+                    'sec-ch-ua': '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
+                    'cwauth-token': token,
+                    'sec-ch-ua-mobile': '?0',
+                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36',
+                    # 'cwauth-panel-token': '80CxSnKulRSW1yigOOrkyH7ublIz02Sf',
+                    'content-type': 'application/json',
+                    'accept': 'application/json',
+                    'clientid': '08148d1f-a3d6-4323-8f64-6080302fc87f',
+                    'origin': 'https://panel.voluum.com',
+                    'sec-fetch-site': 'same-site',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-dest': 'empty',
+                    'referer': 'https://panel.voluum.com/',
+                    'accept-language': 'en-US,en;q=0.9,es;q=0.8',
+                }
+
+                params = (
+                    ('from', str(cal_date) + 'T00:00:00Z'),
+                    ('to', str(cal_date + timedelta(days=1)) + 'T00:00:00Z'),
+                    ('tz', 'Europe/London'),
+                    ('conversionTimeMode', 'CONVERSION'),
+                    ('currency', 'USD'),
+                    ('sort', 'cost'),
+                    ('direction', 'desc'),
+                    ('column',
+                     ['countryName', 'visits', 'visits', 'clicks', 'clicks', 'customConversions1', 'customConversions2',
+                      'revenue',
+                      'cost']),
+                    ('groupBy', 'country-code'),
+                    ('offset', '0'),
+                    ('limit', '10000'),
+                    ('include', 'ACTIVE'),
+                )
+
+                response = requests.get('https://panel-api2.voluum.com/report', headers=headers, params=params)
+
+                data = response.text
+
+                jsn_data = json.loads(data)
+                for row in jsn_data['rows']:
+                    row['date'] = str(cal_date)
+
+                print('Received the requested LTD-report data for: ' + str(cal_date))
+
+                daily_result = [json.dumps(record) for record in jsn_data['rows']]
+                total_result = total_result + daily_result
+                stop = True
+                break
+            headers = {
+                'authority': 'panel-api2.voluum.com',
+                'sec-ch-ua': '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
+                'cwauth-token': token,
+                'sec-ch-ua-mobile': '?0',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36',
+                # 'cwauth-panel-token': '80CxSnKulRSW1yigOOrkyH7ublIz02Sf',
+                'content-type': 'application/json',
+                'accept': 'application/json',
+                'clientid': '08148d1f-a3d6-4323-8f64-6080302fc87f',
+                'origin': 'https://panel.voluum.com',
+                'sec-fetch-site': 'same-site',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-dest': 'empty',
+                'referer': 'https://panel.voluum.com/',
+                'accept-language': 'en-US,en;q=0.9,es;q=0.8',
+            }
+
+            params = (
+                ('from', str(cal_date) + 'T00:00:00Z'),
+                ('to', str(cal_date + timedelta(days=1)) + 'T00:00:00Z'),
+                ('tz', 'Europe/London'),
+                ('conversionTimeMode', 'CONVERSION'),
+                ('currency', 'USD'),
+                ('sort', 'cost'),
+                ('direction', 'desc'),
+                ('column',
+                 ['countryName', 'visits', 'visits', 'clicks', 'clicks', 'customConversions1', 'customConversions2',
+                  'revenue',
+                  'cost']),
+                ('groupBy', 'country-code'),
+                ('offset', '0'),
+                ('limit', '10000'),
+                ('include', 'ACTIVE'),
+            )
+
+            response = requests.get('https://panel-api2.voluum.com/report', headers=headers, params=params)
+
+            data = response.text
+
+            jsn_data = json.loads(data)
+            for row in jsn_data['rows']:
+                row['date'] = str(cal_date)
+
+            print('Received the requested LTD-report data for: ' + str(cal_date))
+
+            daily_result = [json.dumps(record) for record in jsn_data['rows']]
+            total_result = total_result + daily_result
+        elif cal_date.month == iter_month + 1:
+            break
+
+    if iter_month == 12:
+        iter_year = iter_year + 1
+        iter_month = 0
+
+    iter_month = iter_month + 1
+
+print('The request is 100% done')
 with open("sample.json", "w") as outfile:
-    for i in result:
+    for i in total_result:
         outfile.write(i+'\n')
