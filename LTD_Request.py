@@ -14,7 +14,7 @@ headers = {
     'Accept': 'application/json',
 }
 # Receive accessId and accessKey in your voluum account.
-data = '{"accessId": "87929516-da37-4c20-bc4f-1740d81c5c91", "accessKey": "hC_79hGdpFeb7owOQ1vnp1GehSJHysUck8Ts"}'
+data = '{"accessId": "", "accessKey": ""}'
 
 # Send HTTP POST request to get a token that lasts for the next 4 hours.
 response = requests.post('https://api.voluum.com/auth/access/session', headers=headers, data=data)
@@ -56,10 +56,10 @@ while not stop:
                     'cwauth-token': token,
                     'sec-ch-ua-mobile': '?0',
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36',
-                    # 'cwauth-panel-token': '80CxSnKulRSW1yigOOrkyH7ublIz02Sf',
+                    # 'cwauth-panel-token': '',
                     'content-type': 'application/json',
                     'accept': 'application/json',
-                    'clientid': '08148d1f-a3d6-4323-8f64-6080302fc87f',
+                    'clientid': '',
                     'origin': 'https://panel.voluum.com',
                     'sec-fetch-site': 'same-site',
                     'sec-fetch-mode': 'cors',
